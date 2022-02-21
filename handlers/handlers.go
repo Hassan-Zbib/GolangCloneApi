@@ -25,6 +25,7 @@ type friends struct {
 type request struct {
 	UserID int `json:"user_id"`
 	RecordID int `json:"record_id"`
+	Content int `json:"content"`
 }
 type response struct {
 	Message string `json:"message"`
@@ -147,6 +148,35 @@ func Friendlist(w http.ResponseWriter, r *http.Request) {
 
 // statuses
 func Post(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	// db connect
+	db := config.DbConn()
+	// get json request
+	decoder := json.NewDecoder(r.Body)
+
+	var vars request
+	err := decoder.Decode(&vars)
+	if err != nil {
+        panic(err)
+    }
+
+	user_id := vars.UserID
+	content := vars.Content
+
+	// perform a db.Query
+	stmt, err := db.Prepare("INSERT INTO statuses (user_id, content) VALUES (?, ?);")
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = stmt.Exec(user_id, content)
+	if err != nil {
+		panic(err.Error())
+	}
+	res := response{
+		Message: "Status Created",
+	}
+	json.NewEncoder(w).Encode(res)
+	defer db.Close()
 }
 
 func GetFeed(w http.ResponseWriter, r *http.Request) {
