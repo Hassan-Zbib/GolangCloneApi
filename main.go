@@ -10,18 +10,20 @@ import (
 
 
 func main() {
-	log.Println("Server started on: http://localhost:8080")
+	
 	router := mux.NewRouter()
 
 	// users rountes
-	router.HandleFunc("/all", h.Index).Methods("GET")
-	router.HandleFunc("/add", h.InsertUser).Methods("POST").Queries("name", "{name}", "country", "{country}", "number", "{number}")
-	router.HandleFunc("/get/{id}", h.GetUser).Methods("GET")
+	router.HandleFunc("/api/users/friendlist", h.Index).Methods("POST")
+	router.HandleFunc("/api/users/addfriend", h.AddFriend).Methods("POST")
+	router.HandleFunc("/api/users/acceptfirend", h.GetUser).Methods("POST")
 
 	// statuses rountes
-	router.HandleFunc("/update/{id}", h.UpdateUser).Methods("PUT").Queries("name", "{name}", "country", "{country}", "number", "{number}")
-	router.HandleFunc("/del/{id}", h.DelUser).Methods("DELETE")
+	router.HandleFunc("/api/statuses/post", h.UpdateUser).Methods("POST")
+	router.HandleFunc("/api/statuses/getfeed", h.DelUser).Methods("POST")
 
-	http.ListenAndServe(":8080", router)
+	
+	log.Println("Server started on: http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 
 }

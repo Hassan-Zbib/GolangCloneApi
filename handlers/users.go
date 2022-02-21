@@ -16,6 +16,49 @@ type User struct {
 	Number  string `json:"number"`
 }
 
+type request struct {
+	UserID int `json:"user_id"`
+	RecordID int `json:"record_id"`
+}
+
+type response struct {
+	Message string `json:"message"`
+}
+
+func AddFriend(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	// db connect
+	db := config.DbConn()
+	// get json request
+	decoder := json.NewDecoder(r.Body)
+
+	var vars request
+	err := decoder.Decode(&vars)
+	if err != nil {
+        panic(err)
+    }
+
+	user_id := vars.UserID
+	friend_id := vars.RecordID
+	request := "pending"
+
+	// perform a db.Query
+	stmt, err := db.Prepare("INSERT INTO friends(user_id,friend_id,request) VALUES (?,?,?)")
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = stmt.Exec(user_id, friend_id, request)
+	if err != nil {
+		panic(err.Error())
+	}
+	res := response{
+		Message: "Request Sent",
+	}
+	json.NewEncoder(w).Encode(res)
+	defer db.Close()
+}
+
+
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -39,26 +82,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		users = append(users, post)
 	}
 	json.NewEncoder(w).Encode(users)
-	defer db.Close()
-}
-func InsertUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	db := config.DbConn()
-	vars := mux.Vars(r)
-	Name := vars["name"]
-	Country := vars["country"]
-	Number := vars["number"]
-
-	// perform a db.Query insert
-	stmt, err := db.Prepare("INSERT INTO users(name, country, number) VALUES(?,?,?)")
-	if err != nil {
-		panic(err.Error())
-	}
-	_, err = stmt.Exec(Name, Country, Number)
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Fprintf(w, "New user was created")
 	defer db.Close()
 }
 func GetUser(w http.ResponseWriter, r *http.Request) {
