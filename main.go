@@ -8,19 +8,18 @@ import (
 	"github.com/Hassan-Zbib/GolangCloneApi/handlers"
 )
 
-
 func main() {
 	
 	router := mux.NewRouter()
 
 	// users rountes
-	router.HandleFunc("/api/users/friendlist", h.Index).Methods("POST")
+	router.HandleFunc("/api/users/friendlist", h.Friendlist).Methods("POST")
 	router.HandleFunc("/api/users/addfriend", h.AddFriend).Methods("POST")
-	router.HandleFunc("/api/users/acceptfirend", h.GetUser).Methods("POST")
+	router.HandleFunc("/api/users/acceptfriend", h.Accept).Methods("POST")
 
 	// statuses rountes
-	router.HandleFunc("/api/statuses/post", h.UpdateUser).Methods("POST")
-	router.HandleFunc("/api/statuses/getfeed", h.DelUser).Methods("POST")
+	router.HandleFunc("/api/statuses/post", h.Post).Methods("POST")
+	router.HandleFunc("/api/statuses/getfeed", h.GetFeed).Methods("POST")
 
 	
 	log.Println("Server started on: http://localhost:8080")
